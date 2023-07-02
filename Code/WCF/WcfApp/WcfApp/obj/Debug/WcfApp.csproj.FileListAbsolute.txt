@@ -1,0 +1,7 @@
+C:\Users\Hien\source\repos\WcfApp\WcfApp\bin\Debug\WcfApp.dll.config
+C:\Users\Hien\source\repos\WcfApp\WcfApp\bin\Debug\WcfApp.dll
+C:\Users\Hien\source\repos\WcfApp\WcfApp\bin\Debug\WcfApp.pdb
+C:\Users\Hien\source\repos\WcfApp\WcfApp\obj\Debug\WcfApp.csproj.AssemblyReference.cache
+C:\Users\Hien\source\repos\WcfApp\WcfApp\obj\Debug\WcfApp.csproj.CoreCompileInputs.cache
+C:\Users\Hien\source\repos\WcfApp\WcfApp\obj\Debug\WcfApp.dll
+C:\Users\Hien\source\repos\WcfApp\WcfApp\obj\Debug\WcfApp.pdb

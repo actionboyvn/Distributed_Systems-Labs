@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Service</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>My Book Service</h1>
+    <button id="btn_add_book" onclick="showAddBookForm()">Add book</button>
+    <br>
+    <div style="float:left">
+        <table id = "book_table" border="1" >
+            <thead>
+                <tr>
+                    <th style="width:50px">ID</th>
+                    <th style="width:150px">Title</th>
+                    <th style="width:150px">Author</th>            
+                    <th style="width:100px">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>        
+        </table>
+    </div>
+    <div id="book_form" style="float:left;margin-left: 50px;margin-top: -70px;display: none">
+        <h1 id="form_title">Text</h1>
+        <label for="bookID">ID</label>
+        <input id="bookID" type="number">
+        <br><br>
+        <label for="title">Title</label>
+        <input id="title" type="text">
+        <br><br>
+        <label for="author">Author</label>
+        <input id="author" type="text">
+        <br><br>
+        <label for="pages">Pages</label>
+        <input id="pages" type="number">
+        <br><br>
+        <label for="price">Price</label>
+        <input id="price" type="number">
+        <br><br>
+        <label for="status">Status</label>
+        <select id="status">
+            <option value="AVAILABLE">AVAILABLE</option>
+            <option value="BORROWED">BORROWED</option>
+        </select>
+        <br><br>
+        <button id="form_button" onclick="addBook()">ADD</button>
+    </div>
+    <script type = "text/javascript">
+        var serviceURL = "http://localhost:8090/books"
+        var Book = {
+            "id": 0,
+            "title": "null",
+            "author": "null",
+            "pages": 0,
+            "price": 0,
+            "status": "null"
+        }
+        function getAllBooks() {
+            $.ajax({
+                type: "GET",
+                url: serviceURL,
+                dataType: "JSON"
+            })
+            .done(function(msg) {
+                console.log(msg);
+                if (msg._embedded !== undefined)
+                    showBooks(msg._embedded.bookList);
+                else
+                    showBooks([]);
+            })
+            .fail(function(error) {
+                alert(JSON.stringify(error));
+            });            
+        }
+        function showBooks(bookList) {
+            $("tbody").children().remove();
+            $.each(bookList, function(id, item) {
+                let buttons = ''
+                let button_edit = document.createElement("td")
+                button_edit.innerHTML = '<button style="color:orange">Edit</button>'
+                button_edit.onclick = function() {
+                    showEditBookForm(item)
+                }
+                if (item._links.borrow != undefined) {
+                    buttons += `<td><button style="color:red"onclick="deleteBook(${item.id})">Delete</button></td>`;
+                    buttons += `<td><button onclick="borrowBook(${item.id})">Borrow</button></td>`
+                }                    
+                if (item._links.return != undefined)
+                    buttons += `<td><button onclick="returnBook(${item.id})">Return</button></td>`
+                newRec = document.createElement("tr");
+                newRec.innerHTML = "<tr>" +
+                "<td>" + item.id + "</td>" +
+                "<td>" + item.title + "</td>" +
+                "<td>" + item.author + "</td>" +
+                "<td>" + item.status + "</td>" +
+                buttons;
+                newRec.append(button_edit);
+                $("tbody").append(newRec);
+            })
+        }
+        function showAddBookForm() {
+            $("#book_form").css("display", "block");
+            $("#form_title").text("Add a new book:");
+            $("#bookID").val(''); $("#bookID").attr("readonly", false);
+            $("#title").val('');
+            $("#author").val('');
+            $("#pages").val('');
+            $("#price").val('');
+            $("#status").val('');
+            $("#form_button").text("Add");
+            $("#form_button").attr("onclick", "addBook()");
+        }
+        function addBook() {
+            var newBook = Book;
+            newBook.id = document.getElementById("bookID").value;
+            newBook.title = document.getElementById("title").value;
+            newBook.author = document.getElementById("author").value;
+            newBook.pages = document.getElementById("pages").value;
+            newBook.price = document.getElementById("price").value;
+            newBook.status = document.getElementById("status").value;            
+            $.ajax({
+                type: "POST",
+                url: serviceURL,
+                data: JSON.stringify(newBook),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON"
+            })
+            .done(function(msg) {
+                getAllBooks();
+            })
+            .fail(function(error) {
+                alert(JSON.stringify(error));
+            });
+        }
+        function showEditBookForm(book) {
+            $("#book_form").css("display", "block");
+            $("#form_title").text("Edit a book:");
+            $("#bookID").val(book.id);
+            $("#bookID").attr("readonly", true);
+            $("#title").val(book.title);
+            $("#author").val(book.author);
+            $("#pages").val(book.pages);
+            $("#price").val(book.price);
+            $("#status").val(book.status);
+            $("#form_button").text("Save");
+            $("#form_button").attr("onclick", "editBook()");
+        }
+        function editBook() {
+            var editedBook = Book;
+            editedBook.id = document.getElementById("bookID").value;
+            editedBook.title = document.getElementById("title").value;
+            editedBook.author = document.getElementById("author").value;
+            editedBook.pages = document.getElementById("pages").value;
+            editedBook.price = document.getElementById("price").value;
+            editedBook.status = document.getElementById("status").value;            
+            $.ajax({
+                type: "PUT",
+                url: serviceURL,
+                data: JSON.stringify(editedBook),
+                contentType: "application/json; charset=utf-8",
+                dataType: "JSON"
+            })
+            .done(function(msg) {
+                getAllBooks();
+            })
+            .fail(function(error) {
+                alert(JSON.stringify(error));
+            });
+        }
+        function deleteBook(id) {
+            $.ajax( {
+                type: "DELETE",
+                url: serviceURL + "/" + id,
+                dataType: "JSON"
+            })
+            .done(function(msg) {
+                getAllBooks();
+            })
+            .fail(function(error) {
+                alert(JSON.stringify(error));
+            });
+        }
+        function borrowBook(id) {
+            $.ajax( {
+                type: "PATCH",
+                url: serviceURL + "/" + id + "/borrow",
+                dataType: "JSON"
+            })
+            .done(function(msg) {
+                getAllBooks();
+            })
+            .fail(function(error) {
+                alert(JSON.stringify(error));
+            });
+        }
+        function returnBook(id) {
+            $.ajax( {
+                type: "PATCH",
+                url: serviceURL + "/" + id + "/return",
+                dataType: "JSON"
+            })
+            .done(function(msg) {
+                getAllBooks();
+            })
+            .fail(function(error) {
+                alert(JSON.stringify(error));
+            });
+        }
+        window.onload = getAllBooks;
+    </script>
+</body>
+</html>

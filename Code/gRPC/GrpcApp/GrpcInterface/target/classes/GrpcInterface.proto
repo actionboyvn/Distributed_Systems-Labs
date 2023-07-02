@@ -1,0 +1,28 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_outer_classname = "GrpcAppProto";
+option java_package = "org.example.model";
+option objc_class_prefix = "GAP";
+// The service definition.
+service ServiceName {
+  // Remote procedures:
+  rpc unaryProcedure (TheRequest) returns (TheResponse) {}
+  rpc streamProcedure (TheRequest) returns (stream TheResponse) {}
+  rpc procFacFib(TheRequest2) returns (stream TheResponse2) {}
+}
+// The request message containing the user's name and age.
+message TheRequest {
+  string name = 1;
+  int32 age = 2;
+}
+// The response message containing the hello text
+message TheResponse {
+  string message = 1;
+}
+message TheRequest2 {
+  bool type = 1;
+  int32 n = 2;
+}
+message TheResponse2 {
+  int32 res = 2;
+}

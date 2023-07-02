@@ -1,0 +1,50 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_outer_classname = "GrpcAppProto";
+option java_package = "org.example.model";
+option objc_class_prefix = "GAP";
+
+// The service definition.
+service ServiceName {
+  // Remote procedures:
+  rpc saveOneBookProcedure(SaveOneBookRequest) returns (stream SaveBooksResponse) {}
+  rpc saveBooksProcedure(SaveBooksRequest) returns (stream SaveBooksResponse) {}
+  rpc readBooksProcedure(ReadBooksRequest) returns (stream BookRepo) {}
+  rpc deleteOneBookProcedure(DeleteOneBookRequest) returns (stream DeleteOneBookResponse) {}
+  rpc bookImageStreamingProcedure(BookImageStreamingRequest) returns (stream ByteResponse) {}
+}
+message BookImageStreamingRequest {
+  int32 id = 1;
+}
+message ByteResponse {
+  int32 num_of_bytes = 1;
+  bytes chunk = 2;
+  string file_name = 3;
+}
+message Book {
+  int32 id = 1;
+  string title = 2;
+  int32 pages = 3;
+  string cover_page_image = 4;
+}
+message BookRepo {
+  repeated Book book = 1;
+}
+message SaveOneBookRequest {
+  Book new_book = 1;
+}
+message SaveBooksRequest {
+  BookRepo new_book_repo = 1;
+}
+message SaveBooksResponse {
+  string information = 1;
+}
+message ReadBooksRequest {
+  int32 id = 1;
+}
+message DeleteOneBookRequest {
+  int32 id = 1;
+}
+message DeleteOneBookResponse {
+  string information = 1;
+}
